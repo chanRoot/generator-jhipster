@@ -1,5 +1,5 @@
 <%#
- Copyright 2013-2020 the original author or authors from the JHipster project.
+ Copyright 2013-2021 the original author or authors from the JHipster project.
 
  This file is part of the JHipster project, see https://www.jhipster.tech/
  for more information.
@@ -92,19 +92,4 @@
 
     ngOnInit(): void {
         this.handleNavigation();
-    }
-
-    protected handleNavigation(): void {
-        combineLatest([this.activatedRoute.data, this.activatedRoute.queryParamMap]).subscribe(([data, params]) => {
-            const page = params.get('page');
-            const pageNumber = page !== null ? +page : 1;
-            const sort = (params.get('sort') ?? data['defaultSort']).split(',');
-            const predicate = sort[0];
-            const ascending = sort[1] === 'asc';
-            if (pageNumber !== this.page || predicate !== this.predicate || ascending !== this.ascending) {
-              this.predicate = predicate;
-              this.ascending = ascending;
-              this.loadPage(pageNumber, true);
-            }
-        });
     }

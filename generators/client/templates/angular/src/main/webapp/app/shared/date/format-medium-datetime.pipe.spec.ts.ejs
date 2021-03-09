@@ -1,5 +1,5 @@
 <%#
- Copyright 2013-2020 the original author or authors from the JHipster project.
+ Copyright 2013-2021 the original author or authors from the JHipster project.
 
  This file is part of the JHipster project, see https://www.jhipster.tech/
  for more information.
@@ -27,8 +27,11 @@ describe('FormatMediumDatePipe', () => {
     expect(formatMediumDatetimePipe.transform(undefined)).toBe('');
   });
 
+  it('should return an empty string when receive null', () => {
+    expect(formatMediumDatetimePipe.transform(null)).toBe('');
+  });
+
   it('should format date like this D MMM YYYY', () => {
     expect(formatMediumDatetimePipe.transform(dayjs('2020-11-16').locale('fr'))).toBe('16 Nov 2020 00:00:00');
   });
-
 });

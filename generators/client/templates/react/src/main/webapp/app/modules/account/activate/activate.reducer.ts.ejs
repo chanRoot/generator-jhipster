@@ -1,5 +1,5 @@
 <%#
- Copyright 2013-2020 the original author or authors from the JHipster project.
+ Copyright 2013-2021 the original author or authors from the JHipster project.
 
  This file is part of the JHipster project, see https://www.jhipster.tech/
  for more information.
@@ -61,7 +61,7 @@ export default (state: ActivateState = initialState, action): ActivateState => {
 // Actions
 export const activateAction = key => ({
   type: ACTION_TYPES.ACTIVATE_ACCOUNT,
-  payload: axios.get('<%= apiUaaPath %>api/activate?key=' + key)
+  payload: axios.get('api/activate?key=' + key)
 });
 
 

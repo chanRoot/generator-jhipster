@@ -1,5 +1,5 @@
 <%#
- Copyright 2013-2020 the original author or authors from the JHipster project.
+ Copyright 2013-2021 the original author or authors from the JHipster project.
 
  This file is part of the JHipster project, see https://www.jhipster.tech/
  for more information.
@@ -33,8 +33,7 @@ import { TranslateService } from '@ngx-translate/core';
 <%_ } _%>
 import { NgxWebstorageModule } from 'ngx-webstorage';
 
-import { SERVER_API_URL } from 'app/app.constants';
-import { Account } from 'app/core/user/account.model';
+import { Account } from 'app/core/auth/account.model';
 import { Authority } from 'app/config/authority.constants';
 import { StateStorageService } from 'app/core/auth/state-storage.service';
 <%_ if (websocket === 'spring-websocket') { _%>
@@ -132,14 +131,6 @@ describe('Service Tests', () => {
     });
 
     describe('identity', () => {
-      it('should call /account if user is undefined', () => {
-        service.identity().subscribe();
-        const req = httpMock.expectOne({ method: 'GET' });
-        const resourceUrl = SERVER_API_URL + '<%- apiUaaPath %>api/account';
-
-        expect(req.request.url).toEqual(`${resourceUrl}`);
-      });
-
       it('should call /account only once if not logged out after first authentication and should call /account again if user has logged out', () => {
         // Given the user is authenticated
         service.identity().subscribe();

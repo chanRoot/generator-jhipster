@@ -1,5 +1,5 @@
 <%#
- Copyright 2013-2020 the original author or authors from the JHipster project.
+ Copyright 2013-2021 the original author or authors from the JHipster project.
 
  This file is part of the JHipster project, see https://www.jhipster.tech/
  for more information.
@@ -167,6 +167,7 @@ export class SignInPage {
   async loginWithOAuth(username: string, password: string): Promise<void> {
     // Entering non angular site, tell webdriver to switch to synchronous mode.
     await browser.waitForAngularEnabled(false);
+    await browser.sleep(1000);
 
     if (await this.username.isPresent()) {
       await this.username.sendKeys(username);

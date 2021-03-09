@@ -1,5 +1,5 @@
 <%#
- Copyright 2013-2020 the original author or authors from the JHipster project.
+ Copyright 2013-2021 the original author or authors from the JHipster project.
 
  This file is part of the JHipster project, see https://www.jhipster.tech/
  for more information.
@@ -30,27 +30,28 @@ import { map } from 'rxjs/operators';
 import * as dayjs from 'dayjs';
 <%_ } _%>
 
+import { isPresent } from 'app/core/util/operators';
 <%_ if (fieldsContainLocalDate) { _%>
 import { DATE_FORMAT } from 'app/config/input.constants';
 <%_ } _%>
-import { SERVER_API_URL } from 'app/app.constants';
+import { ApplicationConfigService } from 'app/core/config/application-config.service';
 import { createRequestOption } from 'app/core/request/request-util';
 <%_ if (searchEngine !== false) { _%>
 import { <%= searchType %> } from 'app/core/request/request.model';
 <%_ } _%>
-import { I<%= entityAngularName %> } from '../<%= entityFileName %>.model';
+import { I<%= entityAngularName %>, get<%= entityAngularName %>Identifier } from '../<%= entityFileName %>.model';
 
-type EntityResponseType = HttpResponse<I<%= entityAngularName %>>;
-type EntityArrayResponseType = HttpResponse<I<%= entityAngularName %>[]>;
+export type EntityResponseType = HttpResponse<I<%= entityAngularName %>>;
+export type EntityArrayResponseType = HttpResponse<I<%= entityAngularName %>[]>;
 
 @Injectable({ providedIn: 'root' })
 export class <%= entityAngularName %>Service {
-    public resourceUrl = SERVER_API_URL + '<% if (applicationType === 'gateway' && locals.microserviceName) { %>services/<%= microserviceName.toLowerCase() %>/<% } %>api/<%= entityApiUrl %>';
+    public resourceUrl = this.applicationConfigService.getEndpointFor('api/<%= entityApiUrl %>'<% if (applicationType === 'gateway' && locals.microserviceName) { %>, '<%= microserviceName.toLowerCase() %>'<% } %>);
     <%_ if (searchEngine !== false) { _%>
-    public resourceSearchUrl = SERVER_API_URL + '<% if (applicationType === 'gateway' && locals.microserviceName) { %>services/<%= microserviceName.toLowerCase() %>/<% } %>api/_search/<%= entityApiUrl %>';
+    public resourceSearchUrl = this.applicationConfigService.getEndpointFor('api/_search/<%= entityApiUrl %>'<% if (applicationType === 'gateway' && locals.microserviceName) { %>, '<%= microserviceName.toLowerCase() %>'<% } %>);
     <%_ } _%>
 
-    constructor(protected http: HttpClient) {}
+    constructor(protected http: HttpClient, private applicationConfigService: ApplicationConfigService) {}
 
     <%_ if (!readOnly) { _%>
     create(<%= entityInstance %>: I<%= entityAngularName %>): Observable<EntityResponseType> {
@@ -99,15 +100,32 @@ export class <%= entityAngularName %>Service {
     }
     <%_ } _%>
 
+    add<%= entityAngularName %>ToCollectionIfMissing(<%= entityInstance %>Collection: I<%= entityAngularName %>[], ...<%= entityInstancePlural %>ToCheck: (I<%= entityAngularName %> | null | undefined)[]): I<%= entityAngularName %>[] {
+        const <%= entityInstancePlural %>: I<%= entityAngularName %>[] = <%= entityInstancePlural %>ToCheck.filter(isPresent);
+        if (<%= entityInstancePlural %>.length > 0) {
+            const <%= entityInstance %>CollectionIdentifiers = <%= entityInstance %>Collection.map(<%= entityInstance %>Item => get<%= entityAngularName %>Identifier(<%= entityInstance %>Item)!);
+            const <%= entityInstancePlural %>ToAdd = <%= entityInstancePlural %>.filter(<%= entityInstance %>Item => {
+                const <%= entityInstance %>Identifier = get<%= entityAngularName %>Identifier(<%= entityInstance %>Item);
+                if (<%= entityInstance %>Identifier == null || <%= entityInstance %>CollectionIdentifiers.includes(<%= entityInstance %>Identifier)) {
+                    return false;
+                }
+                <%= entityInstance %>CollectionIdentifiers.push(<%= entityInstance %>Identifier);
+                return true;
+            });
+            return [...<%= entityInstancePlural %>ToAdd, ...<%= entityInstance %>Collection];
+        }
+        return <%= entityInstance %>Collection;
+    }
+
 <%_ if (fieldsContainDate) { _%>
     protected convertDateFromClient(<%= entityInstance %>: I<%= entityAngularName %>): I<%= entityAngularName %> {
         const copy: I<%= entityAngularName %> = Object.assign({}, <%= entityInstance %>, {
-    <%_ for (idx in fields) { _%>
-        <%_ if ( ['Instant', 'ZonedDateTime'].includes(fields[idx].fieldType) ) { _%>
-        <%= fields[idx].fieldName %>: <%= entityInstance %>.<%= fields[idx].fieldName %>?.isValid() ? <%= entityInstance %>.<%= fields[idx].fieldName %>.toJSON() : undefined,
+    <%_ for (const field of fields) { _%>
+        <%_ if ( ['Instant', 'ZonedDateTime'].includes(field.fieldType) ) { _%>
+        <%= field.fieldName %>: <%= entityInstance %>.<%= field.fieldName %>?.isValid() ? <%= entityInstance %>.<%= field.fieldName %>.toJSON() : undefined,
         <%_ } _%>
-        <%_ if ( fields[idx].fieldType === 'LocalDate' ) { _%>
-        <%= fields[idx].fieldName %>: <%= entityInstance %>.<%= fields[idx].fieldName %>?.isValid() ? <%= entityInstance %>.<%= fields[idx].fieldName %>.format(DATE_FORMAT) : undefined,
+        <%_ if ( field.fieldType === 'LocalDate' ) { _%>
+        <%= field.fieldName %>: <%= entityInstance %>.<%= field.fieldName %>?.isValid() ? <%= entityInstance %>.<%= field.fieldName %>.format(DATE_FORMAT) : undefined,
         <%_ } _%>
     <%_ } _%>
         });
@@ -116,9 +134,9 @@ export class <%= entityAngularName %>Service {
 
     protected convertDateFromServer(res: EntityResponseType): EntityResponseType {
         if (res.body) {
-        <%_ for (idx in fields) { _%>
-            <%_ if ( ['Instant', 'ZonedDateTime', 'LocalDate'].includes(fields[idx].fieldType) ) { _%>
-            res.body.<%= fields[idx].fieldName %> = res.body.<%= fields[idx].fieldName %> ? dayjs(res.body.<%= fields[idx].fieldName %>) : undefined;
+        <%_ for (const field of fields) { _%>
+            <%_ if ( ['Instant', 'ZonedDateTime', 'LocalDate'].includes(field.fieldType) ) { _%>
+            res.body.<%= field.fieldName %> = res.body.<%= field.fieldName %> ? dayjs(res.body.<%= field.fieldName %>) : undefined;
             <%_ } _%>
         <%_ } _%>
         }
@@ -128,9 +146,9 @@ export class <%= entityAngularName %>Service {
     protected convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
         if (res.body) {
             res.body.forEach ((<%= entityInstance %>: I<%= entityAngularName %>) => {
-            <%_ for (idx in fields) { _%>
-                <%_ if ( ['Instant', 'ZonedDateTime', 'LocalDate'].includes(fields[idx].fieldType) ) { _%>
-                <%= entityInstance %>.<%= fields[idx].fieldName %> = <%= entityInstance %>.<%= fields[idx].fieldName %> ? dayjs(<%= entityInstance %>.<%= fields[idx].fieldName %>) : undefined;
+            <%_ for (const field of fields) { _%>
+                <%_ if ( ['Instant', 'ZonedDateTime', 'LocalDate'].includes(field.fieldType) ) { _%>
+                <%= entityInstance %>.<%= field.fieldName %> = <%= entityInstance %>.<%= field.fieldName %> ? dayjs(<%= entityInstance %>.<%= field.fieldName %>) : undefined;
                 <%_ } _%>
             <%_ } _%>
             });

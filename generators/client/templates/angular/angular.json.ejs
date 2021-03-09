@@ -1,5 +1,5 @@
 <%#
- Copyright 2013-2020 the original author or authors from the JHipster project.
+ Copyright 2013-2021 the original author or authors from the JHipster project.
 
  This file is part of the JHipster project, see https://www.jhipster.tech/
  for more information.
@@ -42,7 +42,13 @@
               "<%= MAIN_SRC_DIR %>content",
               "<%= MAIN_SRC_DIR %>favicon.ico",
               "<%= MAIN_SRC_DIR %>manifest.webapp",
-              { "glob": "*.{js,css,html,png}", "input": "./node_modules/swagger-ui-dist", "output": "swagger-ui", "ignore": ["**/index.html"]  },
+              "<%= MAIN_SRC_DIR %>robots.txt",
+              {
+                "glob": "*.{js,css,html,png}",
+                "input": "./node_modules/swagger-ui-dist",
+                "output": "swagger-ui",
+                "ignore": ["**/index.html"]
+              },
               { "glob": "axios.min.js", "input": "./node_modules/axios/dist", "output": "swagger-ui" },
               { "glob": "**/*", "input": "<%= MAIN_SRC_DIR %>swagger-ui/", "output": "swagger-ui" }
             ],

@@ -1,5 +1,5 @@
 <%#
- Copyright 2013-2020 the original author or authors from the JHipster project.
+ Copyright 2013-2021 the original author or authors from the JHipster project.
 
  This file is part of the JHipster project, see https://www.jhipster.tech/
  for more information.
@@ -41,6 +41,9 @@ env:
     - NG_CLI_ANALYTICS="false"
 <%_ if (buildTool === 'maven') { _%>
     - MAVEN_USER_HOME=$HOME/.m2/repository/
+<%_ } _%>
+<%_ if(testFrameworks.includes('cypress')) { _%>
+    - CYPRESS_ENABLE_RECORD: <%= cicdIntegrations.includes('cypressDashboard') %>
 <%_ } _%>
 before_install:
   - |

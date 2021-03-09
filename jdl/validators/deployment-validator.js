@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2020 the original author or authors from the JHipster project.
+ * Copyright 2013-2021 the original author or authors from the JHipster project.
  *
  * This file is part of the JHipster project, see https://www.jhipster.tech/
  * for more information.
@@ -20,13 +20,13 @@
 const Validator = require('./validator');
 
 class DeploymentValidator extends Validator {
-    constructor() {
-        super('deployment', ['deploymentType', 'appsFolders', 'dockerRepositoryName']);
-    }
+  constructor() {
+    super('deployment', ['deploymentType', 'appsFolders', 'dockerRepositoryName']);
+  }
 
-    validate(jdlDeployment) {
-        super.validate(jdlDeployment);
-    }
+  validate(jdlDeployment) {
+    super.validate(jdlDeployment);
+  }
 }
 
 module.exports = DeploymentValidator;
